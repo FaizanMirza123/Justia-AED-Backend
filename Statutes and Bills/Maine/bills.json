@@ -1,0 +1,50 @@
+[
+    {
+        "state": "Maine",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 100,
+        "bill_id": "LD587",
+        "link": "https://legiscan.com/ME/bill/LD587/2025",
+        "status": "Pass",
+        "title": "An Act to Require School Boards to Adopt a Policy on Automated External Defibrillator Access at School-sponsored Athletic Events",
+        "description": "An Act to Require School Boards to Adopt a Policy on Automated External Defibrillator Access at School-sponsored Athletic Events",
+        "last_action_date": "2025-07-08",
+        "year": "2025"
+    },
+    {
+        "state": "Maine",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 99,
+        "bill_id": "LD1169",
+        "link": "https://legiscan.com/ME/bill/LD1169/2019",
+        "status": "Pass",
+        "title": "An Act To Provide Ready Access to Defibrillators in Businesses and Pharmacies",
+        "description": "An Act To Provide Ready Access to Defibrillators in Businesses and Pharmacies",
+        "last_action_date": "2020-03-17",
+        "year": "2020"
+    },
+    {
+        "state": "Maine",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 99,
+        "bill_id": "LD556",
+        "link": "https://legiscan.com/ME/bill/LD556/2015",
+        "status": "Pass",
+        "title": "An Act To Require Public Schools To Offer Instruction Related to Cardiopulmonary Resuscitation and the Use of an Automated External Defibrillator",
+        "description": "An Act To Require Public Schools To Offer Instruction Related to Cardiopulmonary Resuscitation and the Use of an Automated External Defibrillator",
+        "last_action_date": "2015-06-04",
+        "year": "2015"
+    },
+    {
+        "state": "Maine",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 96,
+        "bill_id": "LD1073",
+        "link": "https://legiscan.com/ME/bill/LD1073/2011",
+        "status": "Pass",
+        "title": "Resolve, To Encourage the Use of Defibrillators in Health Clubs and Gyms",
+        "description": "Resolve, To Encourage the Use of Defibrillators in Health Clubs and Gyms",
+        "last_action_date": "2011-05-16",
+        "year": "2011"
+    }
+]

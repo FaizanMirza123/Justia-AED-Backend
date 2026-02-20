@@ -1,0 +1,28 @@
+[
+    {
+        "state": "Iowa",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 95,
+        "bill_id": "HF2285",
+        "link": "https://legiscan.com/IA/bill/HF2285/2017",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "A bill for an act relating to supplemental reimbursement for eligible ground emergency medical transportation providers through the Medicaid program, and including effective date provisions. (Formerly HF 2103.) Effective 3-29-18.",
+        "description": "A bill for an act relating to supplemental reimbursement for eligible ground emergency medical transportation providers through the Medicaid program, and including effective date provisions. (Formerly HF 2103.) Effective 3-29-18.",
+        "last_action_date": "2018-03-29",
+        "year": "2018"
+    },
+    {
+        "state": "Iowa",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 95,
+        "bill_id": "HF203",
+        "link": "https://legiscan.com/IA/bill/HF203/2015",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "A bill for an act providing for the licensing of respiratory care and polysomnography practitioners and polysomnographic technologists and exceptions thereto, making penalties applicable, and including effective date provisions. Effective 7-1-15, wit...",
+        "description": "A bill for an act providing for the licensing of respiratory care and polysomnography practitioners and polysomnographic technologists and exceptions thereto, making penalties applicable, and including effective date provisions. Effective 7-1-15, wit...",
+        "last_action_date": "2015-04-24",
+        "year": "2015"
+    }
+]

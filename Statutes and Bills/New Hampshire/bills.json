@@ -1,0 +1,54 @@
+[
+    {
+        "state": "New Hampshire",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 98,
+        "bill_id": "HB763",
+        "link": "https://legiscan.com/NH/bill/HB763/2025",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Relative to school emergency plans for sports related injuries.",
+        "description": "Relative to school emergency plans for sports related injuries.",
+        "last_action_date": "2025-07-22",
+        "year": "2025"
+    },
+    {
+        "state": "New Hampshire",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 92,
+        "bill_id": "SB379",
+        "link": "https://legiscan.com/NH/bill/SB379/2024",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Relative to emergency action plans for sports related injuries.",
+        "description": "Relative to emergency action plans for sports related injuries.",
+        "last_action_date": "2024-08-09",
+        "year": "2024"
+    },
+    {
+        "state": "New Hampshire",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 97,
+        "bill_id": "SB74",
+        "link": "https://legiscan.com/NH/bill/SB74/2021",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Relative to advance directives for health care decisions.",
+        "description": "Relative to advance directives for health care decisions.",
+        "last_action_date": "2021-08-03",
+        "year": "2021"
+    },
+    {
+        "state": "New Hampshire",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 96,
+        "bill_id": "SB184",
+        "link": "https://legiscan.com/NH/bill/SB184/2013",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Excluding conservation officers of the fish and game department from requirements for emergency medical and trauma services.",
+        "description": "Excluding conservation officers of the fish and game department from requirements for emergency medical and trauma services.",
+        "last_action_date": "2013-07-03",
+        "year": "2013"
+    }
+]

@@ -1,0 +1,80 @@
+[
+    {
+        "state": "New Mexico",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 99,
+        "bill_id": "HB54",
+        "link": "https://legiscan.com/NM/bill/HB54/2025",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Defibrillators In Every High School",
+        "description": "Defibrillators In Every High School",
+        "last_action_date": "2025-04-09",
+        "year": "2025"
+    },
+    {
+        "state": "New Mexico",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 93,
+        "bill_id": "SB1",
+        "link": "https://legiscan.com/NM/bill/SB1/2016",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "First Aid & Electives For High School Grads",
+        "description": "First Aid & Electives For High School Grads",
+        "last_action_date": "2016-02-02",
+        "year": "2016"
+    },
+    {
+        "state": "New Mexico",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 92,
+        "bill_id": "HB104",
+        "link": "https://legiscan.com/NM/bill/HB104/2016",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Add Lifesaving Skills Training To Curriculum",
+        "description": "Add Lifesaving Skills Training To Curriculum",
+        "last_action_date": "2016-02-05",
+        "year": "2016"
+    },
+    {
+        "state": "New Mexico",
+        "found_via_keyword": "\"Cardiac Arrest\"",
+        "completion_percent": 95,
+        "bill_id": "HB439",
+        "link": "https://legiscan.com/NM/bill/HB439/2025",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Public Safety Telecommunicator Cpr Training",
+        "description": "Public Safety Telecommunicator Cpr Training",
+        "last_action_date": "2025-04-07",
+        "year": "2025"
+    },
+    {
+        "state": "New Mexico",
+        "found_via_keyword": "\"Cardiac Arrest\"",
+        "completion_percent": 92,
+        "bill_id": "SM30",
+        "link": "https://legiscan.com/NM/bill/SM30/2023",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Health Coverage For Brain Injuries",
+        "description": "Health Coverage For Brain Injuries",
+        "last_action_date": "2023-03-16",
+        "year": "2023"
+    },
+    {
+        "state": "New Mexico",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 99,
+        "bill_id": "SB450",
+        "link": "https://legiscan.com/NM/bill/SB450/2023",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "School Coach Cpr & Aed Training",
+        "description": "School Coach Cpr & Aed Training",
+        "last_action_date": "2023-04-05",
+        "year": "2023"
+    }
+]

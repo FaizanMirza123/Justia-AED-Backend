@@ -1,0 +1,54 @@
+[
+    {
+        "state": "Massachusetts",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 95,
+        "bill_id": "S2132",
+        "link": "https://legiscan.com/MA/bill/S2132/2011",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Relative to medical emergency response plans for schools",
+        "description": "Relative to medical emergency response plans for schools",
+        "last_action_date": "2012-04-18",
+        "year": "2012"
+    },
+    {
+        "state": "Massachusetts",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 96,
+        "bill_id": "S1918",
+        "link": "https://legiscan.com/MA/bill/S1918/2013",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Relativerelativerelative to cardiopulmonary resuscitation certification for athletic coaches” (Senate, No. 1918).",
+        "description": "Relativerelativerelative to cardiopulmonary resuscitation certification for athletic coaches” (Senate, No. 1918).",
+        "last_action_date": "2014-10-31",
+        "year": "2014"
+    },
+    {
+        "state": "Massachusetts",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 94,
+        "bill_id": "S2111",
+        "link": "https://legiscan.com/MA/bill/S2111/2011",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Establishing the afterschool and out-of-school time coordinating council",
+        "description": "Establishing the afterschool and out-of-school time coordinating council",
+        "last_action_date": "2012-08-22",
+        "year": "2012"
+    },
+    {
+        "state": "Massachusetts",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 94,
+        "bill_id": "S2573",
+        "link": "https://legiscan.com/MA/bill/S2573/2021",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Allowing humane transportation of K9 partners aka Nero's law",
+        "description": "Allowing humane transportation of K9 partners aka Nero's law",
+        "last_action_date": "2022-02-15",
+        "year": "2022"
+    }
+]

@@ -1,0 +1,26 @@
+[
+    {
+        "state": "Nebraska",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 95,
+        "bill_id": "LB578",
+        "link": "https://legiscan.com/NE/bill/LB578/2017",
+        "status": "Pass",
+        "title": "Adopt the Ground Emergency Medical Transport Act",
+        "description": "Adopt the Ground Emergency Medical Transport Act",
+        "last_action_date": "2017-05-23",
+        "year": "2017"
+    },
+    {
+        "state": "Nebraska",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 92,
+        "bill_id": "LB722",
+        "link": "https://legiscan.com/NE/bill/LB722/2015",
+        "status": "Pass",
+        "title": "Adopt the Stroke System of Care Act",
+        "description": "Adopt the Stroke System of Care Act",
+        "last_action_date": "2016-04-20",
+        "year": "2016"
+    }
+]

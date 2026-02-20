@@ -1,0 +1,41 @@
+[
+    {
+        "state": "Delaware",
+        "found_via_keyword": "\"AED\"",
+        "completion_percent": 100,
+        "bill_id": "HB71",
+        "link": "https://legiscan.com/DE/bill/HB71/2025",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "An Act To Amend Title 14 Relating To Interscholastic Athletics.",
+        "description": "An Act To Amend Title 14 Relating To Interscholastic Athletics.",
+        "last_action_date": "2025-07-30",
+        "year": "2025"
+    },
+    {
+        "state": "Delaware",
+        "found_via_keyword": "\"AED\"",
+        "completion_percent": 91,
+        "bill_id": "HB30",
+        "link": "https://legiscan.com/DE/bill/HB30/2011",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "This bill adds synthetic cannabinoids, commonly known as \u201cSpice,\u201d \u201cK2,\u201d \u201cGenie,\u201d \u201cYucatan Fire,\u201d \u201cSence,\u201d \u201cSmoke,\u201d \u201cSkunk,\u201d and \u201cZohai,\u201d to Schedule I con...",
+        "description": "This bill adds synthetic cannabinoids, commonly known as \u201cSpice,\u201d \u201cK2,\u201d \u201cGenie,\u201d \u201cYucatan Fire,\u201d \u201cSence,\u201d \u201cSmoke,\u201d \u201cSkunk,\u201d and \u201cZohai,\u201d to Schedule I con...",
+        "last_action_date": "2011-06-28",
+        "year": "2011"
+    },
+    {
+        "state": "Delaware",
+        "found_via_keyword": "\"Defibrillator\"",
+        "completion_percent": 98,
+        "bill_id": "SB26",
+        "link": "https://legiscan.com/DE/bill/SB26/2017",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "This Act creates a one-time $100 tax credit per unit for any business purchasing and placing an automatic external defibrillator in service in the State.",
+        "description": "This Act creates a one-time $100 tax credit per unit for any business purchasing and placing an automatic external defibrillator in service in the State.",
+        "last_action_date": "2018-05-09",
+        "year": "2018"
+    }
+]

@@ -1,0 +1,54 @@
+[
+    {
+        "state": "South Dakota",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 99,
+        "bill_id": "SB145",
+        "link": "https://legiscan.com/SD/bill/SB145/2014",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Encourage schools to provide instruction in cardiopulmonary resuscitation.",
+        "description": "Encourage schools to provide instruction in cardiopulmonary resuscitation.",
+        "last_action_date": "2014-03-14",
+        "year": "2014"
+    },
+    {
+        "state": "South Dakota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 99,
+        "bill_id": "SB140",
+        "link": "https://legiscan.com/SD/bill/SB140/2017",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Require schools to provide instruction in hands-only cardiopulmonary resuscitation.",
+        "description": "Require schools to provide instruction in hands-only cardiopulmonary resuscitation.",
+        "last_action_date": "2017-03-10",
+        "year": "2017"
+    },
+    {
+        "state": "South Dakota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 97,
+        "bill_id": "SB118",
+        "link": "https://legiscan.com/SD/bill/SB118/2019",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Establish certain provisions regarding advance care planning.",
+        "description": "Establish certain provisions regarding advance care planning.",
+        "last_action_date": "2019-03-29",
+        "year": "2019"
+    },
+    {
+        "state": "South Dakota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 90,
+        "bill_id": "HB1024",
+        "link": "https://legiscan.com/SD/bill/HB1024/2026",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Modify requirements for ambulance operators.",
+        "description": "Modify requirements for ambulance operators.",
+        "last_action_date": "2026-02-09",
+        "year": "2026"
+    }
+]

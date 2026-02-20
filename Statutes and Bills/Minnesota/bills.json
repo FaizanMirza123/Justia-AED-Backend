@@ -1,0 +1,93 @@
+[
+    {
+        "state": "Minnesota",
+        "found_via_keyword": "\"Defibrillator\"",
+        "completion_percent": 100,
+        "bill_id": "HF1290",
+        "link": "https://legiscan.com/MN/bill/HF1290/2025",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Roadside signage for automatic external defibrillators for qualifying locations authorized.",
+        "description": "Roadside signage for automatic external defibrillators for qualifying locations authorized.",
+        "last_action_date": "2025-05-22",
+        "year": "2025"
+    },
+    {
+        "state": "Minnesota",
+        "found_via_keyword": "\"Defibrillator\"",
+        "completion_percent": 98,
+        "bill_id": "HF2506",
+        "link": "https://legiscan.com/MN/bill/HF2506/2011",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "School district reserved staff development revenue allocation requirement stricken.",
+        "description": "School district reserved staff development revenue allocation requirement stricken.",
+        "last_action_date": "2012-04-24",
+        "year": "2012"
+    },
+    {
+        "state": "Minnesota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 99,
+        "bill_id": "HF235",
+        "link": "https://legiscan.com/MN/bill/HF235/2011",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Hannah's Law enacted by modifying cardiopulmonary resuscitation requirements for child care center staff.",
+        "description": "Hannah's Law enacted by modifying cardiopulmonary resuscitation requirements for child care center staff.",
+        "last_action_date": "2011-05-19",
+        "year": "2011"
+    },
+    {
+        "state": "Minnesota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 95,
+        "bill_id": "SF2245",
+        "link": "https://legiscan.com/MN/bill/SF2245/2013",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Tony Caine's Law",
+        "description": "Tony Caine's Law",
+        "last_action_date": "2014-04-30",
+        "year": "2014"
+    },
+    {
+        "state": "Minnesota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 95,
+        "bill_id": "SF8",
+        "link": "https://legiscan.com/MN/bill/SF8/2019/X1",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "Omnibus judiciary and public safety bill",
+        "description": "Omnibus judiciary and public safety bill",
+        "last_action_date": "2019-05-30",
+        "year": "2019"
+    },
+    {
+        "state": "Minnesota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 92,
+        "bill_id": "HF2128",
+        "link": "https://legiscan.com/MN/bill/HF2128/2011",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Emergency medical personnel licensed.",
+        "description": "Emergency medical personnel licensed.",
+        "last_action_date": "2012-04-20",
+        "year": "2012"
+    },
+    {
+        "state": "Minnesota",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 92,
+        "bill_id": "HF1355",
+        "link": "https://legiscan.com/MN/bill/HF1355/2025",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "Permit holders harvesting or destroying aquatic plants required to safely use scuba diving equipment, and commercial diving operation requirements established.",
+        "description": "Permit holders harvesting or destroying aquatic plants required to safely use scuba diving equipment, and commercial diving operation requirements established.",
+        "last_action_date": "2025-05-01",
+        "year": "2025"
+    }
+]

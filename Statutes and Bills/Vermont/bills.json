@@ -1,0 +1,54 @@
+[
+    {
+        "state": "Vermont",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 100,
+        "bill_id": "S0245",
+        "link": "https://legiscan.com/VT/bill/S0245/2011",
+        "chamber": "Senate",
+        "status": "Pass",
+        "title": "An Act Relating To Requiring Cardiovascular Care Instruction In Public And Independent Schools",
+        "description": "An Act Relating To Requiring Cardiovascular Care Instruction In Public And Independent Schools",
+        "last_action_date": "2012-05-05",
+        "year": "2012"
+    },
+    {
+        "state": "Vermont",
+        "found_via_keyword": "\"Automated External Defibrillator\"",
+        "completion_percent": 98,
+        "bill_id": "H0014",
+        "link": "https://legiscan.com/VT/bill/H0014/2017",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "An act relating to automated external defibrillators",
+        "description": "An act relating to automated external defibrillators",
+        "last_action_date": "2017-04-25",
+        "year": "2017"
+    },
+    {
+        "state": "Vermont",
+        "found_via_keyword": "\"Cardiac Arrest\"",
+        "completion_percent": 93,
+        "bill_id": "H0480",
+        "link": "https://legiscan.com/VT/bill/H0480/2025",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "An act relating to miscellaneous amendments to education law",
+        "description": "An act relating to miscellaneous amendments to education law",
+        "last_action_date": "2025-06-16",
+        "year": "2025"
+    },
+    {
+        "state": "Vermont",
+        "found_via_keyword": "\"Cardiopulmonary resuscitation\"",
+        "completion_percent": 91,
+        "bill_id": "H0663",
+        "link": "https://legiscan.com/VT/bill/H0663/2019",
+        "chamber": "House",
+        "status": "Pass",
+        "title": "An act relating to expanding access to contraceptives",
+        "description": "An act relating to expanding access to contraceptives",
+        "last_action_date": "2020-10-05",
+        "year": "2020"
+    }
+]
