@@ -29,6 +29,62 @@ export const createTables = async () => {
     // Drop legacy bills table if it exists from a previous schema
     await pool.query(`DROP TABLE IF EXISTS bills CASCADE;`);
 
+    // -------------------
+    // Auth & Chat tables
+    // -------------------
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chat_threads (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        session_id VARCHAR(100),
+        title VARCHAR(255) DEFAULT 'New conversation',
+        filters JSONB DEFAULT '{}',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        expires_at TIMESTAMP
+      );
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        id SERIAL PRIMARY KEY,
+        thread_id INTEGER REFERENCES chat_threads(id) ON DELETE CASCADE NOT NULL,
+        role VARCHAR(20) NOT NULL,
+        content TEXT NOT NULL,
+        sources JSONB DEFAULT '[]',
+        used_web_fallback BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    // Index for cleaning up expired anonymous threads
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_chat_threads_expires_at
+      ON chat_threads(expires_at) WHERE expires_at IS NOT NULL;
+    `);
+
+    // Index for user thread lookups
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_chat_threads_user_id
+      ON chat_threads(user_id) WHERE user_id IS NOT NULL;
+    `);
+
+    // Index for session-based anonymous thread lookups
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_chat_threads_session_id
+      ON chat_threads(session_id) WHERE session_id IS NOT NULL;
+    `);
+
     console.log("✅ Tables created successfully");
 
   } catch (error) {
