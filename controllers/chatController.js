@@ -66,9 +66,12 @@ export async function handleChat(req, res) {
     );
 
     // 4. Search the database for relevant laws (RAG retrieval)
+    // If no state filter was explicitly set, try to extract a state mention from the query
+    const effectiveState = filters.state || extractStateFromQuery(message);
+
     const dbResults = await searchLaws({
       query: message,
-      state: filters.state || null,
+      state: effectiveState,
       topic: filters.topic || null,
       industry: filters.industry || null,
       limit: 15,
@@ -155,6 +158,78 @@ Since no database results were found, provide the best available general knowled
     return res.status(500).json({ error: "An error occurred while processing your question." });
   }
 }
+
+/**
+ * Attempt to extract a US state slug from free-form query text.
+ * Returns the state slug (e.g. "california", "new-york") or null if not found.
+ */
+function extractStateFromQuery(query) {
+  const normalized = " " + query.toLowerCase().replace(/[^\w\s]/g, " ") + " ";
+
+  for (const { slug, name, abbreviation } of STATE_LIST) {
+    // Match full state name surrounded by word boundaries
+    const nameRegex = new RegExp(`\\b${name.replace(/-/g, "\\s+")}\\b`);
+    if (nameRegex.test(normalized)) return slug;
+    // Match 2-letter abbreviation as a standalone word
+    const abbrRegex = new RegExp(`\\b${abbreviation.toLowerCase()}\\b`);
+    if (abbrRegex.test(normalized)) return slug;
+  }
+  return null;
+}
+
+const STATE_LIST = [
+  { slug: "alabama", name: "alabama", abbreviation: "AL" },
+  { slug: "alaska", name: "alaska", abbreviation: "AK" },
+  { slug: "arizona", name: "arizona", abbreviation: "AZ" },
+  { slug: "arkansas", name: "arkansas", abbreviation: "AR" },
+  { slug: "california", name: "california", abbreviation: "CA" },
+  { slug: "colorado", name: "colorado", abbreviation: "CO" },
+  { slug: "connecticut", name: "connecticut", abbreviation: "CT" },
+  { slug: "delaware", name: "delaware", abbreviation: "DE" },
+  { slug: "florida", name: "florida", abbreviation: "FL" },
+  { slug: "georgia", name: "georgia", abbreviation: "GA" },
+  { slug: "hawaii", name: "hawaii", abbreviation: "HI" },
+  { slug: "idaho", name: "idaho", abbreviation: "ID" },
+  { slug: "illinois", name: "illinois", abbreviation: "IL" },
+  { slug: "indiana", name: "indiana", abbreviation: "IN" },
+  { slug: "iowa", name: "iowa", abbreviation: "IA" },
+  { slug: "kansas", name: "kansas", abbreviation: "KS" },
+  { slug: "kentucky", name: "kentucky", abbreviation: "KY" },
+  { slug: "louisiana", name: "louisiana", abbreviation: "LA" },
+  { slug: "maine", name: "maine", abbreviation: "ME" },
+  { slug: "maryland", name: "maryland", abbreviation: "MD" },
+  { slug: "massachusetts", name: "massachusetts", abbreviation: "MA" },
+  { slug: "michigan", name: "michigan", abbreviation: "MI" },
+  { slug: "minnesota", name: "minnesota", abbreviation: "MN" },
+  { slug: "mississippi", name: "mississippi", abbreviation: "MS" },
+  { slug: "missouri", name: "missouri", abbreviation: "MO" },
+  { slug: "montana", name: "montana", abbreviation: "MT" },
+  { slug: "nebraska", name: "nebraska", abbreviation: "NE" },
+  { slug: "nevada", name: "nevada", abbreviation: "NV" },
+  { slug: "new-hampshire", name: "new hampshire", abbreviation: "NH" },
+  { slug: "new-jersey", name: "new jersey", abbreviation: "NJ" },
+  { slug: "new-mexico", name: "new mexico", abbreviation: "NM" },
+  { slug: "new-york", name: "new york", abbreviation: "NY" },
+  { slug: "north-carolina", name: "north carolina", abbreviation: "NC" },
+  { slug: "north-dakota", name: "north dakota", abbreviation: "ND" },
+  { slug: "ohio", name: "ohio", abbreviation: "OH" },
+  { slug: "oklahoma", name: "oklahoma", abbreviation: "OK" },
+  { slug: "oregon", name: "oregon", abbreviation: "OR" },
+  { slug: "pennsylvania", name: "pennsylvania", abbreviation: "PA" },
+  { slug: "rhode-island", name: "rhode island", abbreviation: "RI" },
+  { slug: "south-carolina", name: "south carolina", abbreviation: "SC" },
+  { slug: "south-dakota", name: "south dakota", abbreviation: "SD" },
+  { slug: "tennessee", name: "tennessee", abbreviation: "TN" },
+  { slug: "texas", name: "texas", abbreviation: "TX" },
+  { slug: "utah", name: "utah", abbreviation: "UT" },
+  { slug: "vermont", name: "vermont", abbreviation: "VT" },
+  { slug: "virginia", name: "virginia", abbreviation: "VA" },
+  { slug: "washington", name: "washington", abbreviation: "WA" },
+  { slug: "west-virginia", name: "west virginia", abbreviation: "WV" },
+  { slug: "wisconsin", name: "wisconsin", abbreviation: "WI" },
+  { slug: "wyoming", name: "wyoming", abbreviation: "WY" },
+  { slug: "district-of-columbia", name: "district of columbia", abbreviation: "DC" },
+];
 
 function buildDatabaseContext(laws) {
   const lines = [`Found ${laws.length} relevant law(s) in the database:\n`];
