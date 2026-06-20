@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "scrape": "node scraper/scraper.js",
-    "seed": "node db/seedFromFiles.js"
+    "seed": "node db/seedFromFiles.js",
+    "embed": "node db/migrations/addVectorEmbeddings.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -16,6 +17,7 @@
     "express": "^4.19.0",
     "jsonwebtoken": "^9.0.3",
     "openai": "^6.31.0",
-    "pg": "^8.11.1"
+    "pg": "^8.11.1",
+    "pgvector": "^0.3.0"
   }
 }

@@ -2,6 +2,9 @@ import pool from "./db.js";
 
 export const createTables = async () => {
   try {
+    // Enable pgvector extension (must exist before any vector column is created)
+    await pool.query(`CREATE EXTENSION IF NOT EXISTS vector;`);
+
     // -------------------
     // Create tables
     // -------------------
@@ -24,6 +27,17 @@ export const createTables = async () => {
         justia_url TEXT,
         section VARCHAR(100)
       );
+    `);
+
+    // Add embedding column to existing laws tables (idempotent)
+    await pool.query(`
+      ALTER TABLE laws ADD COLUMN IF NOT EXISTS embedding vector(1536);
+    `);
+
+    // HNSW index for fast cosine-distance nearest-neighbour search
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_laws_embedding_hnsw
+      ON laws USING hnsw (embedding vector_cosine_ops);
     `);
 
     // Drop legacy bills table if it exists from a previous schema
