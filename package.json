@@ -7,7 +7,13 @@
     "start": "node index.js",
     "scrape": "node scraper/scraper.js",
     "seed": "node db/seedFromFiles.js",
-    "embed": "node db/migrations/addVectorEmbeddings.js"
+    "embed": "node db/migrations/addVectorEmbeddings.js",
+    "migrate:legal-metadata-schema": "node db/migrations/addLegalMetadata.js",
+    "migrate:classify-laws": "node db/migrations/classifyLawMetadata.js",
+    "migrate:universal-scope-schema": "node db/migrations/addUniversalScope.js",
+    "migrate:classify-universal-scope": "node db/migrations/classifyUniversalScope.js",
+    "generate:production-merge-sql": "node db/migrations/generateProductionMergeScript.mjs",
+    "migrate:thread-facts-schema": "node db/migrations/addThreadFacts.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

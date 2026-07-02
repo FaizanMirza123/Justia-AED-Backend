@@ -1,22 +1,63 @@
 import OpenAI from "openai";
-import { searchLaws } from "../models/chatModel.js";
 import pool from "../db/db.js";
+import { hybridSearchExpanded } from "../models/chatModel.js";
+import { extractStructuredFacts, generateQueryExpansions, resolveJurisdictionSlug } from "../utils/queryUnderstanding.js";
+import { classifyApplicability, detectMissingLegislation } from "../utils/applicabilityAnalysis.js";
+import { TOPICS, INDUSTRIES } from "../utils/taxonomy.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+const MAX_MISSING_LEGISLATION_ROUNDS = 1;
+
 const SYSTEM_PROMPT = `You are an AED (Automated External Defibrillator) law assistant for the Justia AED Laws platform. Your role is to help users understand AED-related laws, statutes, and bills across all U.S. states.
 
+You will be given a CANDIDATE STATUTES list. Every statute in it has already been verified as
+"directly_applicable" or "potentially_applicable" to the user's specific fact pattern (jurisdiction,
+business/facility type, legal issue) — retrieval and applicability screening already happened upstream.
+Do not second-guess whether a listed statute's general topic is relevant; do use your judgment about how
+strongly it supports any specific sentence you write.
+
 IMPORTANT RULES:
-1. You MUST base your answers on the provided database context when available. Do not make up laws or statutes.
-2. When citing a law, always include the state name, law title, and section if available.
-3. If the database context contains relevant laws, use them to answer. Be specific and reference actual statute text.
-4. If no relevant laws are found in the database, clearly state: "Our database does not have specific information on this topic for the requested state/criteria." Then provide your best knowledge from general AED law awareness, but clearly label it as general information NOT from the database.
-5. Never hallucinate or fabricate statute numbers, section codes, or specific legal text.
-6. Keep answers concise, well-structured, and easy to understand for non-legal professionals.
-7. If the user asks about a specific state, focus only on that state's laws.
-8. When filters are applied (topic, industry), focus your answer on those specific areas.
-9. You may use markdown formatting for readability (bold, bullet points, etc.).
-10. If asked about something completely unrelated to AED/CPR/emergency response laws, politely redirect to your area of expertise.`;
+1. Base your answer only on the CANDIDATE STATUTES provided. Do not introduce statutes not listed. Do not
+   make up statute numbers, section codes, or legal text.
+2. For every sentence that relies on a specific statute, tag it immediately with [[CITE:<id>]] using the
+   numeric id given for that candidate. Do not cite a statute you didn't actually rely on.
+   [[CITE:<id>]] is the ONLY bracket-tag token you may ever output. Never output any other token that looks
+   like [[SOMETHING]] — categories, section headers, and instructions given to you are things to describe
+   in your own plain-language sentences, never to echo back as a literal tag.
+3. If a candidate is marked "potentially_applicable", state the condition under which it would apply (given
+   in its "condition" field) — do not present it as a settled, unconditional requirement.
+4. If a candidate is a "bill" (document_type: "bill"), explicitly note that it is proposed/pending
+   legislation, not yet enacted law, if you reference it.
+5. Distinguish clearly between (a) mandatory legal requirements, (b) requirements conditional on facts not
+   yet confirmed, and (c) best practices or recommendations that are not legally required.
+5b. A candidate marked "Universal scope: yes" is baseline law for the whole jurisdiction — it applies to
+    any person or entity regardless of the specific business/facility type the user described. Cite it as
+    a direct, unconditional requirement or protection, not something contingent on facility type (e.g. a
+    general AED-acquisition statute or a Good Samaritan civil-immunity statute).
+6. You will be given a list called "categories of law not confirmed in our database". If that list is
+   non-empty, write a plain-language sentence naming those categories (e.g. "local building code and OSHA
+   requirements") and tell the user to consult the relevant local authority directly for those — do not
+   guess at their requirements, and do not output the list as a tag or in brackets.
+7. If CANDIDATE STATUTES is empty, clearly state: "Our database does not have specific information on this
+   topic for the requested state/criteria." Then you may give general knowledge, clearly labeled as NOT from
+   the database, with no [[CITE:]] tags.
+8. Keep answers concise, well-structured, and easy to understand for non-legal professionals. Markdown is fine.
+9. If asked about something completely unrelated to AED/CPR/emergency response laws, politely redirect to
+   your area of expertise.
+10. A candidate marked "Excerpt may be incomplete: yes" was scraped starting mid-section — it may be missing
+    an earlier subdivision that defines a term it uses, or a condition/threshold (e.g. a size, occupancy, or
+    membership requirement) that limits when the requirement applies. Do NOT present its requirement as
+    unconditional. State the requirement as what the excerpt shows, then explicitly note that the full
+    section may include additional conditions or definitions not shown here, and that the user should
+    confirm the precise scope against the official statute before relying on it.
+11. Read a candidate's ENTIRE text, not just its opening sentence — conditions, exceptions, occupancy/size
+    thresholds, and defined terms (e.g. what "health studio" or "occupied structure" actually means for this
+    section) are frequently stated in a later subdivision, not the one that states the top-line requirement.
+    If any part of a candidate's text defines a term with a condition (e.g. "on a membership basis", an
+    occupant-load threshold, a construction date, an exemption), you MUST state that condition in your
+    answer — do not present a conditional or defined-term-dependent requirement as if it applies
+    unconditionally just because the opening sentence reads that way.`;
 
 /**
  * POST /api/chat
@@ -39,7 +80,6 @@ export async function handleChat(req, res) {
     // 1. Resolve or create thread
     let activeThreadId = threadId;
     if (!activeThreadId) {
-      // Create a new thread
       const maxAgeHours = parseInt(process.env.ANON_CHAT_MAX_AGE_HOURS || "24", 10);
       const expiresAt = userId ? null : new Date(Date.now() + maxAgeHours * 60 * 60 * 1000);
 
@@ -51,13 +91,15 @@ export async function handleChat(req, res) {
       activeThreadId = threadResult.rows[0].id;
     }
 
-    // 2. Load conversation history from DB
+    // 2. Load conversation history + previously-resolved facts from DB
     const historyResult = await pool.query(
-      `SELECT role, content FROM chat_messages
-       WHERE thread_id = $1 ORDER BY created_at ASC`,
+      `SELECT role, content FROM chat_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
       [activeThreadId]
     );
     const history = historyResult.rows;
+
+    const threadResult = await pool.query(`SELECT last_facts FROM chat_threads WHERE id = $1`, [activeThreadId]);
+    const previousFacts = threadResult.rows[0]?.last_facts || null;
 
     // 3. Save user message to DB
     await pool.query(
@@ -65,50 +107,97 @@ export async function handleChat(req, res) {
       [activeThreadId, message]
     );
 
-    // 4. Search the database for relevant laws (RAG retrieval)
-    // If no state filter was explicitly set, try to extract a state mention from the query
-    const effectiveState = filters.state || extractStateFromQuery(message);
+    // 4. Structured query understanding. A follow-up like "how is section
+    // 1714.2 related here?" has no jurisdiction/industry/topic of its own —
+    // inherit unstated fields from the previous turn instead of losing
+    // context and searching every state.
+    const extractedFacts = await extractStructuredFacts(message);
+    const facts = mergeFacts(previousFacts, extractedFacts);
+    applyExplicitFilters(facts, filters);
 
-    const dbResults = await searchLaws({
-      query: message,
-      state: effectiveState,
-      topic: filters.topic || null,
-      industry: filters.industry || null,
-      limit: 15,
-    });
-
-    // 5. Build context from DB results
-    let dbContext = "";
-    let usedWebFallback = false;
-
-    if (dbResults.length > 0) {
-      dbContext = buildDatabaseContext(dbResults);
-    } else {
-      usedWebFallback = true;
-      dbContext = `No relevant laws were found in the database for this query.
-Filters applied: ${JSON.stringify(filters)}
-User question: "${message}"
-
-Since no database results were found, provide the best available general knowledge about AED laws related to the user's question. Clearly indicate that this information is from general knowledge and not from the platform's database. If possible, suggest which states might have relevant legislation.`;
+    let jurisdictionSlug = filters.state && filters.state !== "all"
+      ? filters.state.toLowerCase().replace(/\s+/g, "-")
+      : await resolveJurisdictionSlug(facts.jurisdiction);
+    if (!jurisdictionSlug) {
+      jurisdictionSlug = extractStateFromQuery(message);
     }
 
-    // 6. Build conversation messages for OpenAI
+    const expansionQueries = await generateQueryExpansions(facts, message);
+
+    // 5. Hybrid retrieval (metadata pre-filter + vector + BM25, RRF-fused)
+    let candidates = await hybridSearchExpanded({ facts, jurisdictionSlug, expansionQueries, limit: 40 });
+
+    // 6. Applicability ranking — this is the precision gate that drops
+    // statutes that merely mention the same keywords but don't govern this
+    // fact pattern (e.g. community care regs for a sports center question).
+    let applicable = await classifyApplicability(facts, candidates);
+
+    // 7. Missing legislation detection, with one bounded re-retrieval round.
+    let missing = await detectMissingLegislation(facts, applicable);
+
+    for (let round = 0; round < MAX_MISSING_LEGISLATION_ROUNDS && missing.missing_categories.length > 0; round++) {
+      const targetedQueries = missing.missing_categories.map(
+        (category) => `${facts.jurisdiction || ""} ${category} ${facts.legal_issue || ""}`.trim()
+      );
+      const extra = await hybridSearchExpanded({ facts, jurisdictionSlug, expansionQueries: targetedQueries, limit: 20 });
+
+      const alreadySeenIds = new Set(candidates.map((c) => c.id));
+      const newOnes = extra.filter((c) => !alreadySeenIds.has(c.id));
+      if (newOnes.length === 0) break;
+
+      const newlyClassified = await classifyApplicability(facts, newOnes);
+      candidates = [...candidates, ...newOnes];
+      applicable = mergeAndRankApplicable(applicable, newlyClassified);
+      missing = await detectMissingLegislation(facts, applicable);
+    }
+
+    // 7b. Deterministic coverage check: every AED question has an applicable
+    // Good Samaritan / civil-immunity law in its jurisdiction. Don't leave
+    // this to the LLM's per-query judgment — if retrieval (including the
+    // guaranteed universal-scope fetch) didn't surface one, that's a real
+    // database gap and must be surfaced to the user, not silently dropped.
+    if (jurisdictionSlug && !applicable.some((c) => c.state_slug === jurisdictionSlug && (c.topic || []).includes("Good Samaritan Protection"))) {
+      if (!missing.missing_categories.includes("Good Samaritan Protection")) {
+        missing.missing_categories = [...missing.missing_categories, "Good Samaritan Protection"];
+      }
+    }
+
+    // 8. Build context + generate answer
+    let dbContext;
+    let usedWebFallback = false;
+
+    if (applicable.length === 0) {
+      usedWebFallback = true;
+      dbContext = `No statutes in the database were found to be directly or potentially applicable to this
+fact pattern. Filters applied: ${JSON.stringify(filters)}. Extracted facts: ${JSON.stringify(facts)}.
+User question: "${message}"
+
+Provide the best available general knowledge about AED laws related to the user's question. Clearly
+indicate that this information is from general knowledge and not from the platform's database.`;
+    } else {
+      dbContext = buildDatabaseContext(applicable);
+    }
+
     const openaiMessages = [
       { role: "system", content: SYSTEM_PROMPT },
-      { role: "system", content: `DATABASE CONTEXT:\n${dbContext}` },
+      { role: "system", content: `EXTRACTED FACTS:\n${JSON.stringify(facts)}` },
+      { role: "system", content: `CANDIDATE STATUTES:\n${dbContext}` },
+      {
+        role: "system",
+        content: `Categories of law not confirmed in our database: ${
+          missing.missing_categories.length > 0 ? missing.missing_categories.join(", ") : "(none)"
+        }`,
+      },
     ];
 
-    // Add conversation history (last 20 messages max)
     const recentHistory = history.slice(-20);
     for (const msg of recentHistory) {
       if (msg.role === "user" || msg.role === "assistant") {
         openaiMessages.push({ role: msg.role, content: msg.content });
       }
     }
-
     openaiMessages.push({ role: "user", content: message });
 
-    // 7. Call OpenAI
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: openaiMessages,
@@ -116,33 +205,29 @@ Since no database results were found, provide the best available general knowled
       max_tokens: 1500,
     });
 
-    const reply = completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+    const rawReply = completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
 
-    // 8. Build source references from DB results
-    const sources = dbResults.slice(0, 5).map((law) => ({
-      title: law.title,
-      state: law.state_name,
-      section: law.section,
-      url: law.justia_url,
-    }));
+    // 9. Citation filtering — only show sources the model actually cited,
+    // and only if they were in the applicability-verified candidate set.
+    const { cleanText, sources } = filterCitations(rawReply, applicable);
 
-    // 9. Save assistant message to DB
+    // 10. Persist assistant message
     await pool.query(
       `INSERT INTO chat_messages (thread_id, role, content, sources, used_web_fallback)
        VALUES ($1, 'assistant', $2, $3, $4)`,
-      [activeThreadId, reply, JSON.stringify(sources), usedWebFallback]
+      [activeThreadId, cleanText, JSON.stringify(sources), usedWebFallback]
     );
 
-    // 10. Update thread's updated_at timestamp
-    await pool.query(
-      `UPDATE chat_threads SET updated_at = NOW() WHERE id = $1`,
-      [activeThreadId]
-    );
+    await pool.query(`UPDATE chat_threads SET updated_at = NOW(), last_facts = $2 WHERE id = $1`, [
+      activeThreadId,
+      JSON.stringify(facts),
+    ]);
 
     return res.json({
-      reply,
+      reply: cleanText,
       sources,
       usedWebFallback,
+      missingCategories: missing.missing_categories,
       threadId: activeThreadId,
     });
   } catch (error) {
@@ -160,17 +245,152 @@ Since no database results were found, provide the best available general knowled
 }
 
 /**
+ * Inherit unstated fields from the previous turn's resolved facts. Each
+ * message is extracted in isolation, so a follow-up question that doesn't
+ * restate the state/industry/topic would otherwise silently drop them —
+ * this is what keeps retrieval jurisdiction-scoped across a conversation.
+ * A field is only overridden when the current message clearly states one.
+ */
+function mergeFacts(previous, current) {
+  if (!previous) return current;
+  return {
+    jurisdiction: current.jurisdiction ?? previous.jurisdiction ?? null,
+    business_type: current.business_type ?? previous.business_type ?? null,
+    industry: current.industry ?? previous.industry ?? null,
+    legal_issue: current.legal_issue ?? previous.legal_issue ?? null,
+    facility_status: current.facility_status ?? previous.facility_status ?? null,
+    related_topics:
+      current.related_topics && current.related_topics.length > 0
+        ? [...new Set([...(previous.related_topics || []), ...current.related_topics])]
+        : previous.related_topics || [],
+  };
+}
+
+/** Let explicit UI filters (state/topic/industry dropdowns) override or seed extracted facts. */
+function applyExplicitFilters(facts, filters) {
+  if (filters.industry && filters.industry !== "all" && INDUSTRIES.includes(filters.industry)) {
+    facts.industry = filters.industry;
+  }
+  if (filters.topic && filters.topic !== "all" && TOPICS.includes(filters.topic) && !facts.related_topics.includes(filters.topic)) {
+    facts.related_topics = [...facts.related_topics, filters.topic];
+  }
+}
+
+/** Merge newly classified candidates into an existing applicable list, re-sorted by tier then score. */
+function mergeAndRankApplicable(applicable, newlyClassified) {
+  // newlyClassified already had not_applicable/analogous_only dropped by
+  // classifyApplicability() — this filter is a defense-in-depth backstop,
+  // not the primary guarantee, so the two stay consistent even if a caller
+  // changes.
+  const TIER_ORDER = { directly_applicable: 0, potentially_applicable: 1 };
+  const merged = [
+    ...applicable,
+    ...newlyClassified.filter((c) => c.classification === "directly_applicable" || c.classification === "potentially_applicable"),
+  ];
+  merged.sort((a, b) => {
+    const tierDiff = TIER_ORDER[a.classification] - TIER_ORDER[b.classification];
+    if (tierDiff !== 0) return tierDiff;
+    return (b.rrf_score ?? 0) - (a.rrf_score ?? 0);
+  });
+  return merged;
+}
+
+/**
+ * Parse [[CITE:<id>]] tags out of the generated answer, keep only citations
+ * that (a) the model actually used and (b) were in the applicability-verified
+ * candidate set — this is what prevents "retrieved but unused/irrelevant"
+ * statutes from ever reaching the user, even if they were in context.
+ */
+function filterCitations(rawText, applicableCandidates) {
+  const candidatesById = new Map(applicableCandidates.map((c) => [String(c.id), c]));
+  const citedIds = new Set();
+
+  for (const match of rawText.matchAll(/\[\[CITE:(\d+)\]\]/g)) {
+    if (candidatesById.has(match[1])) citedIds.add(match[1]);
+  }
+
+  // Universal-scope statutes (general AED law, Good Samaritan immunity) must
+  // always be listed as sources for their jurisdiction — don't rely on the
+  // model remembering to tag every sentence that draws on them.
+  for (const c of applicableCandidates) {
+    if (c.universal_scope) citedIds.add(String(c.id));
+  }
+
+  // Strip real CITE tags, then defensively strip ANY other [[...]] token the
+  // model might echo back (e.g. it once leaked a literal [[MISSING_CATEGORIES]]
+  // from a system-message label) so no raw tag can ever reach the user.
+  const cleanText = rawText
+    .replace(/\s?\[\[CITE:\d+\]\]/g, "")
+    .replace(/\s?\[\[[^\]]*\]\]/g, "")
+    .trim();
+
+  const sources = Array.from(citedIds).map((id) => {
+    const c = candidatesById.get(id);
+    return {
+      title: c.title,
+      state: c.state_name,
+      section: c.section,
+      url: c.justia_url,
+      documentType: c.document_type,
+      applicability: c.classification,
+      excerptMayBeIncomplete: looksTruncated(c.description),
+    };
+  });
+
+  return { cleanText, sources };
+}
+
+/**
+ * The scraper that built this corpus recorded Google search-result snippets
+ * rather than full statute pages (confirmed for the "Statutes and Bills" data
+ * source) — many rows start mid-subdivision, e.g. at "(b)" instead of "(a)",
+ * which means an earlier definition or a scope-limiting condition may be
+ * missing from what we have. Detect this so the answer can hedge instead of
+ * asserting a requirement is unconditional based on a partial excerpt.
+ */
+function looksTruncated(description) {
+  return /^\s*\([b-z]\)/i.test(description || "");
+}
+
+function buildDatabaseContext(candidates) {
+  const lines = [`Found ${candidates.length} applicable law(s):\n`];
+
+  for (const c of candidates) {
+    lines.push(`--- CANDIDATE id=${c.id} ---`);
+    lines.push(`State: ${c.state_name}`);
+    lines.push(`Title: ${c.title}`);
+    if (c.section) lines.push(`Section: ${c.section}`);
+    if (c.justia_url) lines.push(`Source URL: ${c.justia_url}`);
+    lines.push(`Document type: ${c.document_type || "statute"}`);
+    lines.push(`Universal scope: ${c.universal_scope ? "yes" : "no"}`);
+    lines.push(`Excerpt may be incomplete: ${looksTruncated(c.description) ? "yes" : "no"}`);
+    lines.push(`Applicability: ${c.classification} — ${c.reasoning || ""}`);
+    if (c.classification === "potentially_applicable" && c.condition) {
+      lines.push(`Condition to confirm applicability: ${c.condition}`);
+    }
+    // 2000 chars silently truncated the trailing definitions/conditions on
+    // ~200 statutes in this corpus (verified on §19300 and §104113, where the
+    // scope-limiting subdivisions live at the end of the text) before the
+    // model ever saw them. 6000 covers those while still capping the rare
+    // (~1.6% of rows) pathologically long bulk-scrape entries.
+    const desc = c.description || "";
+    lines.push(`Text: ${desc.length > 6000 ? desc.slice(0, 6000) + "..." : desc}`);
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
+/**
  * Attempt to extract a US state slug from free-form query text.
- * Returns the state slug (e.g. "california", "new-york") or null if not found.
+ * Fallback used only when structured extraction doesn't yield a jurisdiction.
  */
 function extractStateFromQuery(query) {
   const normalized = " " + query.toLowerCase().replace(/[^\w\s]/g, " ") + " ";
 
   for (const { slug, name, abbreviation } of STATE_LIST) {
-    // Match full state name surrounded by word boundaries
     const nameRegex = new RegExp(`\\b${name.replace(/-/g, "\\s+")}\\b`);
     if (nameRegex.test(normalized)) return slug;
-    // Match 2-letter abbreviation as a standalone word
     const abbrRegex = new RegExp(`\\b${abbreviation.toLowerCase()}\\b`);
     if (abbrRegex.test(normalized)) return slug;
   }
@@ -230,20 +450,3 @@ const STATE_LIST = [
   { slug: "wyoming", name: "wyoming", abbreviation: "WY" },
   { slug: "district-of-columbia", name: "district of columbia", abbreviation: "DC" },
 ];
-
-function buildDatabaseContext(laws) {
-  const lines = [`Found ${laws.length} relevant law(s) in the database:\n`];
-
-  for (const law of laws) {
-    lines.push(`--- LAW ---`);
-    lines.push(`State: ${law.state_name} (${law.abbreviation})`);
-    lines.push(`Title: ${law.title}`);
-    if (law.section) lines.push(`Section: ${law.section}`);
-    if (law.justia_url) lines.push(`Source URL: ${law.justia_url}`);
-    const desc = law.description || "";
-    lines.push(`Text: ${desc.length > 2000 ? desc.slice(0, 2000) + "..." : desc}`);
-    lines.push("");
-  }
-
-  return lines.join("\n");
-}

@@ -187,13 +187,13 @@ async function seed() {
     // ── Insert statutes ───────────────────────────────────────────────────────
     // Title = "StateName last-url-segment", e.g. "Alabama section-6-5-332-3"
     const statuteCount = await batchInsert(
-      "state_id, title, description, justia_url, section",
+      "state_id, title, description, justia_url, section, document_type",
       "laws",
       statutes,
       (s) => {
         const urlSlug = lastUrlSegment(s.link);
         const title = urlSlug ? `${stateName} ${urlSlug}` : stateName;
-        return [stateId, title, s.description ?? null, s.link ?? null, s.section ?? null];
+        return [stateId, title, s.description ?? null, s.link ?? null, s.section ?? null, "statute"];
       }
     );
     totalStatutes += statuteCount;
@@ -208,7 +208,7 @@ async function seed() {
       const bills = raw ? JSON.parse(raw) : [];
 
       billCount = await batchInsert(
-        "state_id, title, description, justia_url, section",
+        "state_id, title, description, justia_url, section, document_type",
         "laws",
         bills,
         (b) => [
@@ -217,6 +217,7 @@ async function seed() {
           b.description ?? b.title ?? null,
           b.link ?? null,
           b.bill_id ?? null,
+          "bill",
         ]
       );
       totalBills += billCount;
